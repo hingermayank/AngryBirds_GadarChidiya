@@ -139,18 +139,16 @@ public class NaiveAgent implements Runnable {
 		}
         // get all the pigs
  		List<ABObject> pigs = vision.findPigsMBR();
+
+
         // sort the y-coordinates of the pigs
         Collections.sort(pigs,new sort_coordinates());
 
-
-
-
-
-
-
-
-
-
+        /*List<BlockObject> obj = blockStructure(vision);
+        for(int i=0;i<obj.size();i++){
+            System.out.println(obj.get(i).getBlockNumber()+" "+obj.get(i).getBlockMaterial()+" "+obj.get(i).getBlockShape());
+        }
+*/
 
 
 		GameState state = aRobot.getState();
@@ -306,6 +304,20 @@ public class NaiveAgent implements Runnable {
 		na.run();
 
 	}
+
+    // Returns a list of all the blocks on the screenshot with block number, block material and blockshape
+    public List<BlockObject> blockStructure(Vision vision){
+        List<ABObject> blocks = vision.findBlocksRealShape();
+        List<BlockObject> blockObjects = new ArrayList<BlockObject>();
+        BlockObject obj = new BlockObject();
+        for(int i = 0; i<blocks.size();i++) {
+            obj.setBlockNumber(i);
+            obj.setBlockMaterial(blocks.get(i).getType());
+            obj.setBlockShape(blocks.get(i).getFrame());
+            blockObjects.add(obj);
+        }
+        return blockObjects;
+    }
 }
 
 //Sorts the y-Coordinates of the pigs
@@ -325,3 +337,7 @@ class sort_coordinates implements Comparator<ABObject> {
         }
     }
 }
+
+
+
+
