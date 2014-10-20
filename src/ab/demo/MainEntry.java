@@ -1,6 +1,5 @@
 package ab.demo;
 
-import ab.demo.database.SQLiteJDBC;
 import ab.planner.abTrajectory;
 import ab.utils.GameImageRecorder;
 import ab.vision.ShowSeg;
@@ -22,7 +21,6 @@ public class MainEntry {
 	// the entry of the software.
 	public static void main(String args[])
 	{
-        SQLiteJDBC dbobj = new SQLiteJDBC();
 
 		String command = "";
 		if(args.length > 0)

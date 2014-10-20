@@ -13,8 +13,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
+import ab.database.DBoperations;
 import ab.demo.other.ActionRobot;
 import ab.demo.other.Shot;
 import ab.planner.TrajectoryPlanner;
@@ -36,7 +36,13 @@ public class NaiveAgent implements Runnable {
 	private Point prevTarget;
 	// a standalone implementation of the Naive Agent
 	public NaiveAgent() {
-		
+
+		try {
+			DBoperations dbop = new DBoperations();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		aRobot = new ActionRobot();
 		tp = new TrajectoryPlanner();
 		prevTarget = null;

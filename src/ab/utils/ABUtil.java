@@ -33,7 +33,7 @@ public class ABUtil {
 		
 		return false;
 	}
-	//Return a link list of ABObjects that support o1 (test by isSupport function ). 
+	//Return a link list of ABObjects that support o2 (test by isSupport function ).
 	//objs refers to a list of potential supporters.
 	//Empty list will be returned if no such supporters. 
 	public static List<ABObject> getSupporters(ABObject o2, List<ABObject> objs)
@@ -47,6 +47,18 @@ public class ABUtil {
 		        }
 		        return result;
 			}
+
+	// Returns a link list of objects that are above a given object (o2 here).
+	public static List<ABObject> getAboveObjects(ABObject o2, List<ABObject> objs)
+	{
+		List<ABObject> resultobj = new LinkedList<ABObject>();
+		for(ABObject o1: objs)
+		{
+			if(isSupport(o1,o2))
+				resultobj.add(o1);
+		}
+		return resultobj;
+	}
 
 	//Return true if the target can be hit by releasing the bird at the specified release point
 	public static boolean isReachable(Vision vision, Point target, Shot shot)

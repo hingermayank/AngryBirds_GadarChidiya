@@ -42,7 +42,7 @@ public class StateUtil {
 		  return state;
 	}
 
-	private static int _getScore(Proxy proxy)
+	public static int _getScore(Proxy proxy)
 	{
 		byte[] imageBytes = proxy.send(new ProxyScreenshotMessage());
         int score = -1;
