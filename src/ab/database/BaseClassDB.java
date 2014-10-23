@@ -7,20 +7,19 @@ import java.sql.*;
  */
 public class BaseClassDB {
 
-    public  String sDriver = "";
-    public  String sUrl = null;
-    public  int iTimeout = 30;
-    public  Connection conn = null;
-    public  Statement statement = null;
-
+    public String sDriver = "";
+    public String sUrl = null;
+    public int iTimeout = 30;
+    public Connection conn = null;
+    public Statement statement = null;
+    public PreparedStatement prep = null;
 
     // Stub constructor for quick instantiation o/t fly for using some of the ancillary stuff
     //quick and dirty constructor to test the database passing the DriverManager name and the fully loaded url to handle
     // NB this will typically be available if you make this class concrete and not abstract
 
 
-    public void init(String sDriverVar, String sUrlVar) throws Exception
-    {
+    public void init(String sDriverVar, String sUrlVar) throws Exception {
         setDriver(sDriverVar);
         setUrl(sUrlVar);
         setConnection();
@@ -28,27 +27,25 @@ public class BaseClassDB {
         createTable();
     }
 
-    private void setDriver(String sDriverVar)
-    {
+    private void setDriver(String sDriverVar) {
         sDriver = sDriverVar;
     }
 
-    private void setUrl(String sUrlVar)
-    {
+    private void setUrl(String sUrlVar) {
         sUrl = sUrlVar;
     }
 
-    public  void setConnection() throws Exception {
+    public void setConnection() throws Exception {
         Class.forName(sDriver);
         conn = DriverManager.getConnection(sUrl);
     }
 
 
-    public  Connection getConnection() {
+    public Connection getConnection() {
         return conn;
     }
 
-    public  void setStatement() throws Exception {
+    public void setStatement() throws Exception {
         if (conn == null) {
             setConnection();
         }
@@ -56,11 +53,19 @@ public class BaseClassDB {
         statement.setQueryTimeout(iTimeout);  // set timeout to 30 sec.
     }
 
-    public  Statement getStatement() {
+    public void setPreparedStatement() throws Exception {
+        if (conn == null) {
+            setConnection();
+        }
+        prep = conn.prepareStatement("insert into datapoints values (?, ?, ?, ?, ?, ?, ?);");
+        prep.setQueryTimeout(iTimeout);  // set timeout to 30 sec.
+    }
+
+    public Statement getStatement() {
         return statement;
     }
 
-    public  void executeStmt(String instruction) throws SQLException {
+    public void executeStmt(String instruction) throws SQLException {
         statement.executeUpdate(instruction);
     }
 
@@ -78,11 +83,13 @@ public class BaseClassDB {
     }
 
     public void closeConnection() {
-        try { conn.close(); } catch (Exception ignore) {}
+        try {
+            conn.close();
+        } catch (Exception ignore) {
+        }
     }
 
-    public void createTable()
-    {
+    public void createTable() {
         try {
             setStatement();
             statement.execute("CREATE TABLE IF NOT EXISTS datapoints(\n" +
@@ -91,8 +98,8 @@ public class BaseClassDB {
                     "   PWEIGHT REAL,\n" +
                     "   AWEIGHT REAL,\n" +
                     "   DISTANCE REAL,\n" +
-                    " REL_ANGLE REAL,\n"+
-                    " SCORE INT\n"+
+                    " REL_ANGLE REAL,\n" +
+                    " SCORE INT\n" +
                     ");");
             System.out.println("Table created.");
         } catch (SQLException e) {
@@ -102,4 +109,26 @@ public class BaseClassDB {
         }
     }
 
+    public void inset(String type, String feasible, double pweight, double aweight, double distance, double rel_angle, int score) {
+        try {
+            setPreparedStatement();
+
+
+            prep.setString(1, type);
+            prep.setString(2, feasible);
+            prep.setDouble(3, pweight);
+            prep.setDouble(4, aweight);
+            prep.setDouble(5, distance);
+            prep.setDouble(6, rel_angle);
+            prep.setInt(7, score);
+
+            conn.setAutoCommit(false);
+            prep.executeUpdate();
+            conn.setAutoCommit(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
+
+
