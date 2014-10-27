@@ -10,6 +10,7 @@ import ab.vision.Vision;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -21,59 +22,52 @@ public class Datapoints {
     Boolean feasibility;
     Double pweight, aweight, distance;
     int score;
-    public ActionRobot aRobot =new ActionRobot();
-
-
-
+    public ActionRobot aRobot = new ActionRobot();
 
     // get score before and after a shot and get the difference for score of that shot
-    public int getScore()
-    {
+    public int getScore() {
         StateUtil util = new StateUtil();
         int temp_score = util._getScore(ActionRobot.proxy);
         return temp_score;
     }
 
 
-    public void objectType(BufferedImage screenshot) {
-
-        Vision vision = new Vision(screenshot);
-        //  List<BlockObject> obj = blockStructure(vision);
-        List<ABObject> blocks = vision.findBlocksRealShape();
-        ABType birdType =aRobot.getBirdTypeOnSling();
-        for(int i=0;i<blocks.size();i++){
-            System.out.println(blocks.get(i).getType()+" "+blocks.get(i).getFrame()+" "+birdType);
-        }
-
-    }
-
     public ABType getType(ABObject block) {
         return block.getType();
     }
 
     public double getArea(ABObject block) {
-        return block.getHeight()*block.getWidth();
+        int constant = 0;
+        switch (block.getType()) {
+            case Pig:
+                constant = 10;
+                break;
+            case TNT:
+                constant = 10;
+                break;
+            default:
+                constant = 1;
+        }
+        return constant * (block.getHeight() * block.getWidth());
     }
 
-    public double getMinPigDistance(ABObject block , List<ABObject> pigs) {
+    public double getMinPigDistance(ABObject block, List<ABObject> pigs) {
         double min = 99999;
-        for (int i = 0 ; i < pigs.size() ; i++) {
-            if(distance(block.getCenter(), pigs.get(i).getCenter()) <= min){
+        double normalization_factor = 100.0;
+        for (int i = 0; i < pigs.size(); i++) {
+            if (distance(block.getCenter(), pigs.get(i).getCenter()) <= min) {
                 min = distance(block.getCenter(), pigs.get(i).getCenter());
             }
         }
-        return min;
+        return min / normalization_factor;
     }
 
-    public double aboveBlocksWeight(ABObject block , List<ABObject> pigs , List<ABObject> blocks) {
+    public double aboveBlocksWeight(ABObject block, List<ABObject> blocks) {
 
         double totalArea = 0;
-        for(int i=0;i<pigs.size();i++) {
-            blocks.add(pigs.get(i));
-        }
 
-        for(int j=0;j<blocks.size();j++) {
-            if(ABUtil.isSupport(block, blocks.get(j))) {
+        for (int j = 0; j < blocks.size(); j++) {
+            if (ABUtil.isSupport(block, blocks.get(j))) {
                 totalArea = totalArea + getArea(blocks.get(j));
             }
         }
@@ -86,4 +80,41 @@ public class Datapoints {
                         * (p1.y - p2.y)));
     }
 
+
+    public double getWeakness(ABObject block, ABType bird) {
+        HashMap<ABType, Double> wood = new HashMap<ABType, Double>();
+        HashMap<ABType, Double> ice = new HashMap<ABType, Double>();
+        HashMap<ABType, Double> stone = new HashMap<ABType, Double>();
+
+        wood.put(ABType.RedBird, 0.8);
+        wood.put(ABType.BlueBird, 0.8);
+        wood.put(ABType.YellowBird, 0.4);
+        wood.put(ABType.WhiteBird, 0.8);
+        wood.put(ABType.BlackBird, 0.4);
+
+        ice.put(ABType.RedBird, 0.8);
+        ice.put(ABType.BlueBird, 0.4);
+        ice.put(ABType.YellowBird, 0.8);
+        ice.put(ABType.WhiteBird, 0.8);
+        ice.put(ABType.BlackBird, 0.4);
+
+        stone.put(ABType.RedBird, 0.2);
+        stone.put(ABType.BlueBird, 0.1);
+        stone.put(ABType.YellowBird, 0.1);
+        stone.put(ABType.WhiteBird, 0.8);
+        stone.put(ABType.BlackBird, 0.8);
+
+        String blocktype = block.toString().toLowerCase();
+        if (blocktype == "wood") {
+            return wood.get(bird);
+        } else if (blocktype == "ice") {
+            return ice.get(bird);
+        } else if (blocktype == "stone") {
+            return stone.get(bird);
+        }
+        else {
+            return 0;
+        }
+
+    }
 }
