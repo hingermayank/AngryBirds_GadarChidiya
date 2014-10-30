@@ -18,6 +18,7 @@ import ab.database.DBoperations;
 import ab.demo.other.ActionRobot;
 import ab.demo.other.Shot;
 import ab.planner.TrajectoryPlanner;
+import ab.regression.Datapoints;
 import ab.utils.ABUtil;
 import ab.utils.StateUtil;
 import ab.vision.ABObject;
@@ -132,7 +133,8 @@ public class NaiveAgent implements Runnable {
 
 		// process image
 		Vision vision = new Vision(screenshot);
-      //  objectType(screenshot);
+        Datapoints data = new Datapoints();
+       // data.objectType(screenshot);
 
 		// find the slingshot
 		Rectangle sling = vision.findSlingshotMBR();
@@ -148,6 +150,14 @@ public class NaiveAgent implements Runnable {
 		}
         // get all the pigs
  		List<ABObject> pigs = vision.findPigsMBR();
+        List<ABObject> blocks = vision.findBlocksRealShape();
+        System.out.println("SIZE " + blocks.size());
+        System.out.println("NUMBER " + 1);
+        System.out.println("TYPE " + data.getTypes(blocks.get(0)));
+        System.out.println("AREA " + data.getArea(blocks.get(0)));
+        System.out.println("MIN PIG DISTANCE " + data.getMinPigDistance( blocks.get(0) , pigs));
+        System.out.println("ABOVE BLOCKS WEIGHT " + data.aboveBlocksWeight(blocks.get(0) , pigs , blocks ));
+        System.out.println("ABOVE "+data.above(blocks.get(0) , pigs ));
 
 
         // sort the y-coordinates of the pigs

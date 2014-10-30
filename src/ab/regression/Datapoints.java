@@ -10,6 +10,8 @@ import ab.vision.Vision;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,7 +23,7 @@ public class Datapoints {
     Boolean feasibility;
     Double pweight, aweight, distance;
     int score;
-    public ActionRobot aRobot =new ActionRobot();
+    //public ActionRobot aRobot =new ActionRobot();
 
 
 
@@ -40,14 +42,22 @@ public class Datapoints {
         Vision vision = new Vision(screenshot);
         //  List<BlockObject> obj = blockStructure(vision);
         List<ABObject> blocks = vision.findBlocksRealShape();
-        ABType birdType =aRobot.getBirdTypeOnSling();
+        List<ABObject> pigs = vision.findPigsMBR();
+      //  ABType birdType =aRobot.getBirdTypeOnSling();
+        System.out.println("size "+ blocks.size());
         for(int i=0;i<blocks.size();i++){
-            System.out.println(blocks.get(i).getType()+" "+blocks.get(i).getFrame()+" "+birdType);
+            //System.out.println(blocks.get(i).getType()+" "+blocks.get(i).getFrame()+" "+birdType);
+            System.out.println("NUMBER " + i);
+            System.out.println("TYPE " + getTypes(blocks.get(i)));
+            System.out.println("AREA " + getArea(blocks.get(i)));
+            System.out.println("MIN PIG DISTANCE " + getMinPigDistance(blocks.get(i), pigs));
+            System.out.println("ABOVE BLOCKS WEIGHT " + aboveBlocksWeight(blocks.get(i), pigs, blocks));
         }
+        System.out.println("fffffffffffffffffffffffffffffffffffffffffffffffffffffff");
 
     }
 
-    public ABType getType(ABObject block) {
+    public ABType getTypes(ABObject block) {
         return block.getType();
     }
 
@@ -78,6 +88,23 @@ public class Datapoints {
             }
         }
         return totalArea;
+    }
+
+    public double above(ABObject block , List<ABObject> blocks) {
+        List<ABObject> aboveBlocks = new ArrayList<ABObject>();
+        double minDistanceBlockArea = 99999;
+        for(int i=0;i<blocks.size();i++) {
+            if(blocks.get(i).getCenter().getX() > (block.getCenter().getX() - block.getWidth()/2) && blocks.get(i).getCenter().getX() < (block.getCenter().getX() + block.getWidth()/2) && block.getCenterY() > blocks.get(i).getCenterY()) {
+                aboveBlocks.add(blocks.get(i));
+            }
+        }
+        for(int j=0;j<aboveBlocks.size();j++) {
+            if(Math.abs(block.getCenterY() - aboveBlocks.get(j).getCenterY()) < minDistanceBlockArea) {
+                minDistanceBlockArea = getArea(aboveBlocks.get(j));
+            }
+        }
+        System.out.println("sizeAbovev "+ aboveBlocks.size());
+        return minDistanceBlockArea;
     }
 
     public double distance(Point p1, Point p2) {
