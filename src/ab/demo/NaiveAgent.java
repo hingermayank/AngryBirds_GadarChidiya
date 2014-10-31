@@ -156,7 +156,7 @@ public class NaiveAgent implements Runnable {
         System.out.println("TYPE " + data.getTypes(blocks.get(0)));
         System.out.println("AREA " + data.getArea(blocks.get(0)));
         System.out.println("MIN PIG DISTANCE " + data.getMinPigDistance( blocks.get(0) , pigs));
-        System.out.println("ABOVE BLOCKS WEIGHT " + data.aboveBlocksWeight(blocks.get(0) , pigs , blocks ));
+        System.out.println("ABOVE BLOCKS WEIGHT " + data.aboveBlocksWeight(blocks.get(0)  , blocks ));
         System.out.println("ABOVE "+data.above(blocks.get(0) , pigs ));
 
 

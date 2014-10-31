@@ -35,13 +35,7 @@ public class Datapoints {
 
 
       //  ABType birdType =aRobot.getBirdTypeOnSling();
-        System.out.println("size "+ blocks.size());
-            System.out.println("NUMBER " + i);
-            System.out.println("TYPE " + getTypes(blocks.get(i)));
-            System.out.println("AREA " + getArea(blocks.get(i)));
-            System.out.println("MIN PIG DISTANCE " + getMinPigDistance(blocks.get(i), pigs));
-            System.out.println("ABOVE BLOCKS WEIGHT " + aboveBlocksWeight(blocks.get(i), pigs, blocks));
-        System.out.println("fffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+
     public ABType getTypes(ABObject block) {
         return block.getType();
     }
@@ -81,7 +75,9 @@ public class Datapoints {
                 totalArea = totalArea + getArea(blocks.get(j));
             }
         }
-        return totalArea;
+
+
+        return totalArea + above( block, blocks);
     }
 
     public double above(ABObject block , List<ABObject> blocks) {
@@ -97,7 +93,7 @@ public class Datapoints {
                 minDistanceBlockArea = getArea(aboveBlocks.get(j));
             }
         }
-        System.out.println("sizeAbovev "+ aboveBlocks.size());
+       // System.out.println("sizeAbovev "+ aboveBlocks.size());
         return minDistanceBlockArea;
     }
 
