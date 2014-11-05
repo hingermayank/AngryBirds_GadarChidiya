@@ -10,7 +10,9 @@ import ab.vision.Vision;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,7 +24,7 @@ public class Datapoints {
     Boolean feasibility;
     Double pweight, aweight, distance;
     int score;
-    public ActionRobot aRobot = new ActionRobot();
+    //public ActionRobot aRobot =new ActionRobot();
 
     // get score before and after a shot and get the difference for score of that shot
     public int getScore() {
@@ -32,7 +34,9 @@ public class Datapoints {
     }
 
 
-    public ABType getType(ABObject block) {
+      //  ABType birdType =aRobot.getBirdTypeOnSling();
+
+    public ABType getTypes(ABObject block) {
         return block.getType();
     }
 
@@ -71,7 +75,26 @@ public class Datapoints {
                 totalArea = totalArea + getArea(blocks.get(j));
             }
         }
-        return totalArea;
+
+
+        return totalArea + above( block, blocks);
+    }
+
+    public double above(ABObject block , List<ABObject> blocks) {
+        List<ABObject> aboveBlocks = new ArrayList<ABObject>();
+        double minDistanceBlockArea = 99999;
+        for(int i=0;i<blocks.size();i++) {
+            if(blocks.get(i).getCenter().getX() > (block.getCenter().getX() - block.getWidth()/2) && blocks.get(i).getCenter().getX() < (block.getCenter().getX() + block.getWidth()/2) && block.getCenterY() > blocks.get(i).getCenterY()) {
+                aboveBlocks.add(blocks.get(i));
+            }
+        }
+        for(int j=0;j<aboveBlocks.size();j++) {
+            if(Math.abs(block.getCenterY() - aboveBlocks.get(j).getCenterY()) < minDistanceBlockArea) {
+                minDistanceBlockArea = getArea(aboveBlocks.get(j));
+            }
+        }
+       // System.out.println("sizeAbovev "+ aboveBlocks.size());
+        return minDistanceBlockArea;
     }
 
     public double distance(Point p1, Point p2) {

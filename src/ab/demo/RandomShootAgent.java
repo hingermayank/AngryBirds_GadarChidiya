@@ -184,7 +184,7 @@ public class RandomShootAgent implements Runnable {
 
                     ABObject randobj = objlist.get(randomNum);
 
-                    ABType objtype = dp.getType(randobj);
+                    ABType objtype = dp.getTypes(randobj);
                     System.out.println("obj type = "+ objtype.toString());
 
                     Double objarea = dp.getArea(randobj);
@@ -197,6 +197,9 @@ public class RandomShootAgent implements Runnable {
                     double objweakness = dp.getWeakness(randobj, bird_onSling);
                     System.out.println("Weakness of block = " + objweakness);
 
+                    System.out.println("ABOVEblockWEIGHT = " + dp.above(randobj , objlist));
+
+
 
                     Point _tpt = randobj.getCenter();// if the target is very close to before, randomly choose a point near it
 
@@ -207,8 +210,15 @@ public class RandomShootAgent implements Runnable {
                     // estimate the trajectory
                     ArrayList<Point> pts = tp.estimateLaunchPoint(sling, _tpt);
 
+                    Collections.sort(pts, new Comparator<Point>() {
+                        @Override public int compare(Point p1, Point p2) {
+                            return (int)(p1.getX()- p2.getX());
+                        }
+
+                    });
+
                     //release point for random shoot
-                    releasePoint = pts.get((int)(Math.random() * pts.size()));
+                    releasePoint = pts.get(0);
 
                     // Get the reference point
                     Point refPoint = tp.getReferencePoint(sling);
