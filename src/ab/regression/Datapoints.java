@@ -80,7 +80,6 @@ public class Datapoints {
                         * (p1.y - p2.y)));
     }
 
-
     public double getWeakness(ABObject block, ABType bird) {
         HashMap<ABType, Double> wood = new HashMap<ABType, Double>();
         HashMap<ABType, Double> ice = new HashMap<ABType, Double>();

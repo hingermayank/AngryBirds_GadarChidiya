@@ -5,6 +5,7 @@ import ab.demo.other.ActionRobot;
 import ab.demo.other.Shot;
 import ab.planner.TrajectoryPlanner;
 import ab.regression.Datapoints;
+import ab.utils.ABUtil;
 import ab.utils.StateUtil;
 import ab.vision.ABObject;
 import ab.vision.ABType;
@@ -199,6 +200,9 @@ public class RandomShootAgent implements Runnable {
 
                     Point _tpt = randobj.getCenter();// if the target is very close to before, randomly choose a point near it
 
+                    ABUtil utility = new ABUtil();
+                    boolean feasible = utility.isReachable(vision, _tpt, shot);
+                    System.out.println("Feasible = "+ feasible);
 
                     // estimate the trajectory
                     ArrayList<Point> pts = tp.estimateLaunchPoint(sling, _tpt);
