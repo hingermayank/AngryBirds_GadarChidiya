@@ -183,11 +183,9 @@ public class NaiveAgent implements Runnable {
 				{
 					// pick a pig at index 0 because pig with index 0 has the maximum height
 
-
-
                     ABObject pig = pigs.get(0);
 
-					
+
 					Point _tpt = pig.getCenter();// if the target is very close to before, randomly choose a
 					// point near it
 					if (prevTarget != null && distance(prevTarget, _tpt) < 10) {
