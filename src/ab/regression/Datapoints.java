@@ -56,7 +56,13 @@ public class Datapoints {
     }
 
     public double getMinPigDistance(ABObject block, List<ABObject> pigs) {
-        double min = 99999;
+        double min;
+        if(pigs.size()==0){
+            min=0;
+        }
+        else{
+            min=9999;
+        }
         double normalization_factor = 100.0;
         for (int i = 0; i < pigs.size(); i++) {
             if (distance(block.getCenter(), pigs.get(i).getCenter()) <= min) {
@@ -83,6 +89,7 @@ public class Datapoints {
     public double above(ABObject block , List<ABObject> blocks) {
         List<ABObject> aboveBlocks = new ArrayList<ABObject>();
         double minDistanceBlockArea = 99999;
+        double aboveWeight = 0;
         for(int i=0;i<blocks.size();i++) {
             if(blocks.get(i).getCenter().getX() > (block.getCenter().getX() - block.getWidth()/2) && blocks.get(i).getCenter().getX() < (block.getCenter().getX() + block.getWidth()/2) && block.getCenterY() > blocks.get(i).getCenterY()) {
                 aboveBlocks.add(blocks.get(i));
@@ -90,11 +97,11 @@ public class Datapoints {
         }
         for(int j=0;j<aboveBlocks.size();j++) {
             if(Math.abs(block.getCenterY() - aboveBlocks.get(j).getCenterY()) < minDistanceBlockArea) {
-                minDistanceBlockArea = getArea(aboveBlocks.get(j));
+                aboveWeight = getArea(aboveBlocks.get(j));
             }
         }
        // System.out.println("sizeAbovev "+ aboveBlocks.size());
-        return minDistanceBlockArea;
+        return aboveWeight;
     }
 
     public double distance(Point p1, Point p2) {
@@ -134,7 +141,10 @@ public class Datapoints {
             return ice.get(bird);
         } else if (blocktype == "stone") {
             return stone.get(bird);
+        } else if(blocktype == "pig") {
+            return 1.0;
         }
+
         else {
             return 0;
         }
