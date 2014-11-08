@@ -216,9 +216,9 @@ public class RandomShootAgent implements Runnable {
                         }
 
                     });
-
+                    int randomNumPoint = (int)(Math.random() * (pts.size()));
                     //release point for random shoot
-                    releasePoint = pts.get(0);
+                    releasePoint = pts.get(randomNumPoint);
 
                     // Get the reference point
                     Point refPoint = tp.getReferencePoint(sling);
