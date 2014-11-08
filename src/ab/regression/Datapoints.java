@@ -133,17 +133,17 @@ public class Datapoints {
         stone.put(ABType.WhiteBird, 0.8);
         stone.put(ABType.BlackBird, 0.8);
 
-        String blocktype = block.toString().toLowerCase();
-        if (blocktype == "wood") {
+        String blocktype = block.getType().toString().toLowerCase();
+        //System.out.println("Blocktype = " + blocktype);
+        if (blocktype.equals("wood")) {
             return wood.get(bird);
-        } else if (blocktype == "ice") {
+        } else if (blocktype.equals("ice")) {
             return ice.get(bird);
-        } else if (blocktype == "stone") {
+        } else if (blocktype.equals("stone")) {
             return stone.get(bird);
-        } else if(blocktype == "pig") {
+        } else if(blocktype.equals("pig")) {
             return 1.0;
         }
-
         else {
             return 0;
         }

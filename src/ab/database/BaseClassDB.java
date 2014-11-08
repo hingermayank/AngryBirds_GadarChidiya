@@ -94,7 +94,7 @@ public class BaseClassDB {
             setStatement();
             statement.execute("CREATE TABLE IF NOT EXISTS datapoints(\n" +
                     "   TYPE TEXT,\n" +
-                    "   FEASIBLE TEXT,\n" +
+                    "   ANGLE REAL,\n" +
                     "   PWEIGHT REAL,\n" +
                     "   AWEIGHT REAL,\n" +
                     "   DISTANCE REAL,\n" +
@@ -109,13 +109,13 @@ public class BaseClassDB {
         }
     }
 
-    public void inset(String type, String feasible, double pweight, double aweight, double distance, double weakness, int score) {
+    public void inset(String type, double angle, double pweight, double aweight, double distance, double weakness, int score) {
         try {
             setPreparedStatement();
 
 
             prep.setString(1, type);
-            prep.setString(2, feasible);
+            prep.setDouble(2, angle);
             prep.setDouble(3, pweight);
             prep.setDouble(4, aweight);
             prep.setDouble(5, distance);

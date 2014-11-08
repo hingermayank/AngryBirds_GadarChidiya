@@ -177,10 +177,10 @@ public class RandomShootAgent implements Runnable {
                     System.out.println("Score before shoot = " + score_before_shoot);
 
                     int objlistsize = objlist.size();
-                    System.out.println("objlistsize = " + objlistsize);
+                   // System.out.println("objlistsize = " + objlistsize);
 
-                    int randomNum = (int)(Math.random() * (objlistsize));
-                    System.out.println("randomNum = "+randomNum);
+                    int randomNum = (int)(Math.random() * (objlistsize-1));
+                  //  System.out.println("randomNum = "+randomNum);
 
                     ABObject randobj = objlist.get(randomNum);
 
@@ -197,15 +197,16 @@ public class RandomShootAgent implements Runnable {
                     double objweakness = dp.getWeakness(randobj, bird_onSling);
                     System.out.println("Weakness of block = " + objweakness);
 
-                    System.out.println("ABOVEblockWEIGHT = " + dp.above(randobj , objlist));
-
-
+                    Double aweight = dp.above(randobj , objlist);
+                    System.out.println("ABOVEblockWEIGHT = " + aweight);
 
                     Point _tpt = randobj.getCenter();// if the target is very close to before, randomly choose a point near it
 
+                    /*
                     ABUtil utility = new ABUtil();
                     boolean feasible = utility.isReachable(vision, _tpt, shot);
                     System.out.println("Feasible = "+ feasible);
+                    */
 
                     // estimate the trajectory
                     ArrayList<Point> pts = tp.estimateLaunchPoint(sling, _tpt);
@@ -251,6 +252,7 @@ public class RandomShootAgent implements Runnable {
                         int tapTime = tp.getTapTime(sling, releasePoint, _tpt, tapInterval);
                         dx = (int)releasePoint.getX() - refPoint.x;
                         dy = (int)releasePoint.getY() - refPoint.y;
+
                         shot = new Shot(refPoint.x, refPoint.y, dx, dy, 0, tapTime);
                     }
                     else
