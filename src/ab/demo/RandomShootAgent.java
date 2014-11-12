@@ -237,13 +237,13 @@ public class RandomShootAgent implements Runnable {
                             case RedBird:
                                 tapInterval = 0; break;               // start of trajectory
                             case YellowBird:
-                                tapInterval = 65 + randomGenerator.nextInt(25);break; // 65-90% of the way
+                                tapInterval = 85 + randomGenerator.nextInt(10);break; // 85-95% of the way
                             case WhiteBird:
-                                tapInterval =  70 + randomGenerator.nextInt(20);break; // 70-90% of the way
+                                tapInterval =  80 + randomGenerator.nextInt(10);break; // 80-90% of the way
                             case BlackBird:
-                                tapInterval =  70 + randomGenerator.nextInt(20);break; // 70-90% of the way
+                                tapInterval =  75 + randomGenerator.nextInt(15);break; // 75-90% of the way
                             case BlueBird:
-                                tapInterval =  65 + randomGenerator.nextInt(20);break; // 65-85% of the way
+                                tapInterval =  65 + randomGenerator.nextInt(15);break; // 65-80% of the way
                             default:
                                 tapInterval =  60;
                         }
@@ -283,7 +283,7 @@ public class RandomShootAgent implements Runnable {
                                 System.out.println("obj type = "+ objtype.toString());
 
                                 Double objarea = dp.getArea(randobj);
-                                para.setPweight(objarea);
+                                para.setPweight(objarea/1000.0);
                                 System.out.println("Area = " + objarea);
 
                                 Double minpigdist = dp.getMinPigDistance(randobj , vision.findPigsRealShape());
@@ -298,7 +298,7 @@ public class RandomShootAgent implements Runnable {
                                 System.out.println("Weakness of block = " + objweakness);
 
                                 Double aweight = dp.above(randobj , objlist);
-                                para.setAweight(aweight);
+                                para.setAweight(aweight/1000.0);
                                 System.out.println("Above block WEIGHT = " + aweight);
 
                                 total_birds--;
