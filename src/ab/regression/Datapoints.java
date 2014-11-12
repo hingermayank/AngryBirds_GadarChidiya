@@ -20,16 +20,10 @@ import java.util.List;
  */
 public class Datapoints {
 
-    String type;
-    Boolean feasibility;
-    Double pweight, aweight, distance;
-    int score;
-    //public ActionRobot aRobot =new ActionRobot();
-
     // get score before and after a shot and get the difference for score of that shot
     public int getScore() {
         StateUtil util = new StateUtil();
-        int temp_score = util._getScore(ActionRobot.proxy);
+        int temp_score = StateUtil._getScore(ActionRobot.proxy);
         return temp_score;
     }
 

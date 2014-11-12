@@ -7,8 +7,8 @@ import java.sql.*;
  */
 public class BaseClassDB {
 
-    public String sDriver = "";
-    public String sUrl = null;
+    public String sDriver = "org.sqlite.JDBC";
+    public String sUrl = "jdbc:sqlite:dataset.db";
     public int iTimeout = 30;
     public Connection conn = null;
     public Statement statement = null;

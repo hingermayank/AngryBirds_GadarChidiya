@@ -1,10 +1,12 @@
 package ab.demo;
 
+import ab.database.BaseClassDB;
 import ab.database.DBoperations;
 import ab.demo.other.ActionRobot;
 import ab.demo.other.Shot;
 import ab.planner.TrajectoryPlanner;
 import ab.regression.Datapoints;
+import ab.regression.Parameters;
 import ab.utils.ABUtil;
 import ab.utils.StateUtil;
 import ab.vision.ABObject;
@@ -29,25 +31,35 @@ public class RandomShootAgent implements Runnable {
     public static int time_limit = 12;
     private Map<Integer,Integer> scores = new LinkedHashMap<Integer,Integer>();
     TrajectoryPlanner tp;
-    int order=0;
+    int chance_score;
     private boolean firstrun = true;
     //private boolean firstShot;
     private Point prevTarget;
+    private int total_birds;
+    private int sub_score =0;
+    private int score_before_shoot;
+    private int score_after_shoot;
+    private Datapoints dp;
+    private ABObject randobj;
+    public Parameters para;
+    public BaseClassDB base;
+    private DBoperations dbop;
+
     // a standalone implementation of the Naive Agent
     public RandomShootAgent() {
-/*
-        if(firstrun) {
-            try {
-                DBoperations dbop = new DBoperations();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-*/
+
         aRobot = new ActionRobot();
         tp = new TrajectoryPlanner();
         prevTarget = null;
         randomGenerator = new Random();
+        para = new Parameters();
+        base = new BaseClassDB();
+        try {
+            dbop = new DBoperations();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         // --- go to the Poached Eggs episode level selection page ---
         ActionRobot.GoFromMainMenuToLevelSelection();
 
@@ -61,12 +73,24 @@ public class RandomShootAgent implements Runnable {
         while (true) {
             GameStateExtractor.GameState state = solve();
             if (state == GameStateExtractor.GameState.WON) {
+                sub_score = 10000 * total_birds;
+                int temp1 = score_before_shoot+sub_score;
+                System.out.println("Sub score = " + sub_score);
+
                 try {
                     Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
                 int score = StateUtil.getScore(ActionRobot.proxy);
+                System.out.println("Final Score = " + score);
+
+                //score_after_shoot = score-sub_score;
+                chance_score = score -temp1;
+                para.setScore(chance_score);
+                System.out.println("score in that chance after won= " + chance_score);
+
                 if(!scores.containsKey(currentLevel))
                     scores.put(currentLevel, score);
                 else
@@ -82,14 +106,15 @@ public class RandomShootAgent implements Runnable {
                             + " Score: " + scores.get(key) + " ");
                 }
                 System.out.println("Total Score: " + totalScore);
-                if(currentLevel<=7) {
-                    aRobot.loadLevel(++currentLevel);
-                    // make a new trajectory planner whenever a new level is entered
-                    tp = new TrajectoryPlanner();
 
-                    // first shot on this level, try high shot first
-                    //firstShot = true;
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
+                base.inset(para.getType(), para.getAngle(), para.getPweight(), para.getAweight(), para.getDistance(), para.getWeakness(), para.getScore());
+                aRobot.loadLevel(++currentLevel);
+                tp = new TrajectoryPlanner();
             } else if (state == GameStateExtractor.GameState.LOST) {
                 System.out.println("Restart");
                 aRobot.restartLevel();
@@ -137,6 +162,7 @@ public class RandomShootAgent implements Runnable {
         // objlist contains realshape MBR of all pigs and blocks
         List<ABObject> objlist = new LinkedList<ABObject>();
         List<ABObject> temp = new LinkedList<ABObject>();
+        List<ABObject> birdslist = new LinkedList<ABObject>();
 
         temp = vision.findPigsRealShape();
         objlist.addAll(temp);
@@ -144,9 +170,12 @@ public class RandomShootAgent implements Runnable {
         temp = vision.findBlocksRealShape();
         objlist.addAll(temp);
 
-        int temp_score = StateUtil._getScore(ActionRobot.proxy);
-        int score_before_shoot;
-        int score_after_shoot;
+        birdslist = vision.findBirdsRealShape();
+        if(birdslist != null) {
+            total_birds = birdslist.size();
+        }
+        //int temp_score = StateUtil._getScore(ActionRobot.proxy);
+
 
         // confirm the slingshot
         while (sling == null && aRobot.getState() == GameStateExtractor.GameState.PLAYING) {
@@ -168,58 +197,27 @@ public class RandomShootAgent implements Runnable {
             if (!objlist.isEmpty()) {
 
                 Point releasePoint = null;
-                Datapoints dp = new Datapoints();
+                dp = new Datapoints();
                 Shot shot = new Shot();
                 int dx,dy;
                 {
-                    // pick a object at index random
-                    score_before_shoot = dp.getScore();
-                    System.out.println("Score before shoot = " + score_before_shoot);
-
                     int objlistsize = objlist.size();
                    // System.out.println("objlistsize = " + objlistsize);
 
                     int randomNum = (int)(Math.random() * (objlistsize-1));
                   //  System.out.println("randomNum = "+randomNum);
 
-                    ABObject randobj = objlist.get(randomNum);
-
-                    ABType objtype = dp.getTypes(randobj);
-                    System.out.println("obj type = "+ objtype.toString());
-
-                    Double objarea = dp.getArea(randobj);
-                    System.out.println("Area = " + objarea);
-
-                    Double minpigdist = dp.getMinPigDistance(randobj , vision.findPigsRealShape());
-                    System.out.println("Min. pig distance = " + minpigdist);
-
-                    ABType bird_onSling = aRobot.getBirdTypeOnSling();
-                    double objweakness = dp.getWeakness(randobj, bird_onSling);
-                    System.out.println("Weakness of block = " + objweakness);
-
-                    Double aweight = dp.above(randobj , objlist);
-                    System.out.println("ABOVEblockWEIGHT = " + aweight);
+                    randobj = objlist.get(randomNum);
 
                     Point _tpt = randobj.getCenter();// if the target is very close to before, randomly choose a point near it
-
-                    /*
-                    ABUtil utility = new ABUtil();
-                    boolean feasible = utility.isReachable(vision, _tpt, shot);
-                    System.out.println("Feasible = "+ feasible);
-                    */
 
                     // estimate the trajectory
                     ArrayList<Point> pts = tp.estimateLaunchPoint(sling, _tpt);
 
-                    Collections.sort(pts, new Comparator<Point>() {
-                        @Override public int compare(Point p1, Point p2) {
-                            return (int)(p1.getX()- p2.getX());
-                        }
-
-                    });
-
+                    int temp_rand = (int) Math.random()*(pts.size()-1);
+                    System.out.println("Temp rand = " + temp_rand);
                     //release point for random shoot
-                    releasePoint = pts.get(0);
+                    releasePoint = pts.get(temp_rand);
 
                     // Get the reference point
                     Point refPoint = tp.getReferencePoint(sling);
@@ -228,6 +226,7 @@ public class RandomShootAgent implements Runnable {
                     if (releasePoint != null) {
                         double releaseAngle = tp.getReleaseAngle(sling,
                                 releasePoint);
+                        para.setAngle(Math.toDegrees(releaseAngle));
                         System.out.println("Release Point: " + releasePoint);
                         System.out.println("Release Angle: "
                                 + Math.toDegrees(releaseAngle));
@@ -268,6 +267,7 @@ public class RandomShootAgent implements Runnable {
                     screenshot = ActionRobot.doScreenShot();
                     vision = new Vision(screenshot);
                     Rectangle _sling = vision.findSlingshotMBR();
+
                     if(_sling != null)
                     {
                         double scale_diff = Math.pow((sling.width - _sling.width),2) +  Math.pow((sling.height - _sling.height),2);
@@ -275,13 +275,47 @@ public class RandomShootAgent implements Runnable {
                         {
                             if(dx < 0)
                             {
+                                score_before_shoot = dp.getScore();
+                                System.out.println("Score before shoot = " + score_before_shoot);
+
+                                ABType objtype = dp.getTypes(randobj);
+                                para.setType(objtype.toString());
+                                System.out.println("obj type = "+ objtype.toString());
+
+                                Double objarea = dp.getArea(randobj);
+                                para.setPweight(objarea);
+                                System.out.println("Area = " + objarea);
+
+                                Double minpigdist = dp.getMinPigDistance(randobj , vision.findPigsRealShape());
+                                para.setDistance(minpigdist);
+                                System.out.println("Min. pig distance = " + minpigdist);
+
+                                ABType bird_onSling = aRobot.getBirdTypeOnSling();
+                                System.out.println("Bird on sling = " + bird_onSling.toString());
+
+                                double objweakness = dp.getWeakness(randobj, bird_onSling);
+                                para.setWeakness(objweakness);
+                                System.out.println("Weakness of block = " + objweakness);
+
+                                Double aweight = dp.above(randobj , objlist);
+                                para.setAweight(aweight);
+                                System.out.println("Above block WEIGHT = " + aweight);
+
+                                total_birds--;
+                                System.out.println("Total birds left = "  + total_birds);
+
                                 aRobot.cshoot(shot);
+
                                 state = aRobot.getState();
-                                score_after_shoot = dp.getScore();
-                                System.out.println("Score after shoot = " + score_after_shoot);
-                                System.out.println("score in that chance = " + (score_after_shoot-score_before_shoot));
                                 if ( state == GameStateExtractor.GameState.PLAYING )
                                 {
+                                    score_after_shoot = dp.getScore();
+                                    System.out.println("Score after shoot = " + score_after_shoot);
+                                    chance_score = score_after_shoot - score_before_shoot;
+                                    para.setScore(chance_score);
+                                    System.out.println("score in that chance = " + chance_score);
+                                    base.inset(para.getType(), para.getAngle(), para.getPweight(), para.getAweight(), para.getDistance(), para.getWeakness(), para.getScore());
+
                                     screenshot = ActionRobot.doScreenShot();
                                     vision = new Vision(screenshot);
                                     java.util.List<Point> traj = vision.findTrajPoints();
