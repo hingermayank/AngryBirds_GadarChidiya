@@ -27,7 +27,7 @@ public class RandomShootAgent implements Runnable {
 
     private ActionRobot aRobot;
     private Random randomGenerator;
-    public int currentLevel = 1;
+    public int currentLevel = 16;
     public static int time_limit = 12;
     private Map<Integer,Integer> scores = new LinkedHashMap<Integer,Integer>();
     TrajectoryPlanner tp;
@@ -204,6 +204,7 @@ public class RandomShootAgent implements Runnable {
                     int objlistsize = objlist.size();
                    // System.out.println("objlistsize = " + objlistsize);
 
+
                     int randomNum = randomGenerator.nextInt(objlistsize);
                    // int randomNum = (int)(Math.random() * (objlistsize-1));
                   //  System.out.println("randomNum = "+randomNum);
@@ -214,6 +215,14 @@ public class RandomShootAgent implements Runnable {
 
                     // estimate the trajectory
                     ArrayList<Point> pts = tp.estimateLaunchPoint(sling, _tpt);
+
+                    System.out.println(" pts size = " + pts.size());
+                    while(pts.size() == 0){
+                        randomNum = randomGenerator.nextInt(objlistsize);
+                        randobj = objlist.get(randomNum);
+                        _tpt = randobj.getCenter();
+                        pts = tp.estimateLaunchPoint(sling, _tpt);
+                    }
 
                     int temp_rand = randomGenerator.nextInt(pts.size());
                     //int temp_rand = (int) Math.random()*(pts.size()-1);
@@ -233,13 +242,32 @@ public class RandomShootAgent implements Runnable {
                         System.out.println("Release Angle: "
                                 + Math.toDegrees(releaseAngle));
                         int tapInterval = 0;
+
+                        Point[] x_cord = new Point[objlistsize];
+                        for(int i=0; i<objlistsize; i++)
+                        {
+                            x_cord[i] = objlist.get(i).getCenter();
+                        }
+
+                        Arrays.sort(x_cord, new Comparator<Point>() {
+                            public int compare(Point a, Point b) {
+                                int xComp = Integer.compare(a.x, b.x);
+                                if(xComp == 0)
+                                    return Integer.compare(a.y, b.y);
+                                else
+                                    return xComp;
+                            }
+                        });
+
+                        Point left_most = x_cord[0];
+
                         switch (aRobot.getBirdTypeOnSling())
                         {
 
                             case RedBird:
                                 tapInterval = 0; break;               // start of trajectory
                             case YellowBird:
-                                tapInterval = 85 + randomGenerator.nextInt(10);break; // 85-95% of the way
+                                tapInterval = 75 + randomGenerator.nextInt(15);break; // 75-90% of the way
                             case WhiteBird:
                                 tapInterval =  80 + randomGenerator.nextInt(10);break; // 80-90% of the way
                             case BlackBird:
@@ -250,7 +278,7 @@ public class RandomShootAgent implements Runnable {
                                 tapInterval =  60;
                         }
 
-                        int tapTime = tp.getTapTime(sling, releasePoint, _tpt, tapInterval);
+                        int tapTime = tp.getTapTime(sling, releasePoint, left_most, tapInterval);
                         dx = (int)releasePoint.getX() - refPoint.x;
                         dy = (int)releasePoint.getY() - refPoint.y;
 

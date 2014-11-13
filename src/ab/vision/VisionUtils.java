@@ -92,6 +92,7 @@ public class VisionUtils {
 				diff += Math.abs((int)((colourA & 0x0000ff00) >> 8) - (int)((colourB & 0x0000ff00) >> 8));
 				diff += Math.abs((int)(colourA & 0x000000ff) - (int)(colourB & 0x000000ff));
 
+
 			}
         }
 
@@ -144,6 +145,7 @@ public class VisionUtils {
 				sums[x] += (int) ((colour & 0x00ff0000) >> 16);
 				sums[x] += (int) ((colour & 0x0000ff00) >> 8);
 				sums[x] += (int) (colour & 0x000000ff);
+
 			}
 		}
 

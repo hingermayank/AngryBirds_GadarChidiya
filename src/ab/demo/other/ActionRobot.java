@@ -248,8 +248,9 @@ public class ActionRobot {
 
 			@Override
 			public int compare(Rectangle o1, Rectangle o2) {
-				
+
 				return ((Integer)(o1.y)).compareTo((Integer)(o2.y));
+
 			}	
 		});
 		return _birds.get(0).getType();
