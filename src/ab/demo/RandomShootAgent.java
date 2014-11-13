@@ -204,7 +204,8 @@ public class RandomShootAgent implements Runnable {
                     int objlistsize = objlist.size();
                    // System.out.println("objlistsize = " + objlistsize);
 
-                    int randomNum = (int)(Math.random() * (objlistsize-1));
+                    int randomNum = randomGenerator.nextInt(objlistsize);
+                   // int randomNum = (int)(Math.random() * (objlistsize-1));
                   //  System.out.println("randomNum = "+randomNum);
 
                     randobj = objlist.get(randomNum);
@@ -214,7 +215,8 @@ public class RandomShootAgent implements Runnable {
                     // estimate the trajectory
                     ArrayList<Point> pts = tp.estimateLaunchPoint(sling, _tpt);
 
-                    int temp_rand = (int) Math.random()*(pts.size()-1);
+                    int temp_rand = randomGenerator.nextInt(pts.size());
+                    //int temp_rand = (int) Math.random()*(pts.size()-1);
                     System.out.println("Temp rand = " + temp_rand);
                     //release point for random shoot
                     releasePoint = pts.get(temp_rand);
@@ -226,7 +228,7 @@ public class RandomShootAgent implements Runnable {
                     if (releasePoint != null) {
                         double releaseAngle = tp.getReleaseAngle(sling,
                                 releasePoint);
-                        para.setAngle(Math.toDegrees(releaseAngle));
+                        para.setAngle(Math.toDegrees(releaseAngle)/100.0);
                         System.out.println("Release Point: " + releasePoint);
                         System.out.println("Release Angle: "
                                 + Math.toDegrees(releaseAngle));
