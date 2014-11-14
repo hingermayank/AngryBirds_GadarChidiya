@@ -57,7 +57,7 @@ public class BaseClassDB {
         if (conn == null) {
             setConnection();
         }
-        prep = conn.prepareStatement("insert into datapoints values (?, ?, ?, ?, ?, ?, ?);");
+        prep = conn.prepareStatement("insert into datapoints values (?, ?, ?, ?, ?, ?, ?, ?);");
         prep.setQueryTimeout(iTimeout);  // set timeout to 30 sec.
     }
 
@@ -95,6 +95,7 @@ public class BaseClassDB {
             statement.execute("CREATE TABLE IF NOT EXISTS datapoints(\n" +
                     "   TYPE TEXT,\n" +
                     "   ANGLE REAL,\n" +
+                    " REACHABLE INT,\n" +
                     "   PWEIGHT REAL,\n" +
                     "   AWEIGHT REAL,\n" +
                     "   DISTANCE REAL,\n" +
@@ -109,18 +110,19 @@ public class BaseClassDB {
         }
     }
 
-    public void inset(String type, double angle, double pweight, double aweight, double distance, double weakness, int score) {
+    public void inset(String type, double angle, int reachable, double pweight, double aweight, double distance, double weakness, int score) {
         try {
             setPreparedStatement();
 
 
             prep.setString(1, type);
             prep.setDouble(2, angle);
-            prep.setDouble(3, pweight);
-            prep.setDouble(4, aweight);
-            prep.setDouble(5, distance);
-            prep.setDouble(6, weakness);
-            prep.setInt(7, score);
+            prep.setDouble(3, reachable);
+            prep.setDouble(4, pweight);
+            prep.setDouble(5, aweight);
+            prep.setDouble(6, distance);
+            prep.setDouble(7, weakness);
+            prep.setInt(8, score);
 
             conn.setAutoCommit(false);
             prep.executeUpdate();

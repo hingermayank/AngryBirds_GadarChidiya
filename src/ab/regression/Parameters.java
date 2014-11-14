@@ -7,7 +7,7 @@ public class Parameters {
 
     String type;
     Double pweight, aweight, distance, weakness, angle;
-    int score;
+    int score, reachable;
 
     public void setType(String type) {
         this.type = type;
@@ -21,8 +21,16 @@ public class Parameters {
         this.pweight = pweight;
     }
 
+    public void setReachable(int reachable) {
+        this.reachable = reachable;
+    }
+
     public String getType() {
         return type;
+    }
+
+    public int getReachable() {
+        return reachable;
     }
 
     public Double getPweight() {

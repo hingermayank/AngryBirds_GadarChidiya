@@ -27,7 +27,7 @@ public class RandomShootAgent implements Runnable {
 
     private ActionRobot aRobot;
     private Random randomGenerator;
-    public int currentLevel = 16;
+    public int currentLevel = 1;
     public static int time_limit = 12;
     private Map<Integer,Integer> scores = new LinkedHashMap<Integer,Integer>();
     TrajectoryPlanner tp;
@@ -44,6 +44,8 @@ public class RandomShootAgent implements Runnable {
     public Parameters para;
     public BaseClassDB base;
     private DBoperations dbop;
+    private Point _tpt;
+    int counter;
 
     // a standalone implementation of the Naive Agent
     public RandomShootAgent() {
@@ -73,7 +75,7 @@ public class RandomShootAgent implements Runnable {
         while (true) {
             GameStateExtractor.GameState state = solve();
             if (state == GameStateExtractor.GameState.WON) {
-                sub_score = 10000 * total_birds;
+                sub_score = 10000 * counter;
                 int temp1 = score_before_shoot+sub_score;
                 System.out.println("Sub score = " + sub_score);
 
@@ -112,8 +114,8 @@ public class RandomShootAgent implements Runnable {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                base.inset(para.getType(), para.getAngle(), para.getPweight(), para.getAweight(), para.getDistance(), para.getWeakness(), para.getScore());
-                aRobot.loadLevel(++currentLevel);
+                base.inset(para.getType(), para.getAngle(), para.getReachable(), para.getPweight(), para.getAweight(), para.getDistance(), para.getWeakness(), para.getScore());
+                aRobot.loadLevel(currentLevel);
                 tp = new TrajectoryPlanner();
             } else if (state == GameStateExtractor.GameState.LOST) {
                 System.out.println("Restart");
@@ -173,6 +175,7 @@ public class RandomShootAgent implements Runnable {
         birdslist = vision.findBirdsRealShape();
         if(birdslist != null) {
             total_birds = birdslist.size();
+            counter = total_birds;
         }
         //int temp_score = StateUtil._getScore(ActionRobot.proxy);
 
@@ -211,7 +214,7 @@ public class RandomShootAgent implements Runnable {
 
                     randobj = objlist.get(randomNum);
 
-                    Point _tpt = randobj.getCenter();// if the target is very close to before, randomly choose a point near it
+                    _tpt = randobj.getCenter();// if the target is very close to before, randomly choose a point near it
 
                     // estimate the trajectory
                     ArrayList<Point> pts = tp.estimateLaunchPoint(sling, _tpt);
@@ -283,6 +286,18 @@ public class RandomShootAgent implements Runnable {
                         dy = (int)releasePoint.getY() - refPoint.y;
 
                         shot = new Shot(refPoint.x, refPoint.y, dx, dy, 0, tapTime);
+
+                        boolean reachable = ABUtil.isReachable(vision, _tpt, shot);
+                        if(reachable)
+                        {
+                            para.setReachable(1);
+                        }
+                        else
+                        {
+                            para.setReachable(0);
+                        }
+
+
                     }
                     else
                     {
@@ -331,8 +346,8 @@ public class RandomShootAgent implements Runnable {
                                 para.setAweight(aweight/1000.0);
                                 System.out.println("Above block WEIGHT = " + aweight);
 
-                                total_birds--;
-                                System.out.println("Total birds left = "  + total_birds);
+                                counter--;
+                                System.out.println("Total birds left = "  + counter);
 
                                 aRobot.cshoot(shot);
 
@@ -344,7 +359,7 @@ public class RandomShootAgent implements Runnable {
                                     chance_score = score_after_shoot - score_before_shoot;
                                     para.setScore(chance_score);
                                     System.out.println("score in that chance = " + chance_score);
-                                    base.inset(para.getType(), para.getAngle(), para.getPweight(), para.getAweight(), para.getDistance(), para.getWeakness(), para.getScore());
+                                    base.inset(para.getType(), para.getAngle(), para.getReachable(), para.getPweight(), para.getAweight(), para.getDistance(), para.getWeakness(), para.getScore());
 
                                     screenshot = ActionRobot.doScreenShot();
                                     vision = new Vision(screenshot);
