@@ -3,8 +3,11 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/ABSoftware.jar!/" />
       <root url="jar://$PROJECT_DIR$/ABServer.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/sqlite-jdbc-3.6.7.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/Downloads/sqlite-jdbc-3.6.7.jar!/" />
+    </SOURCES>
   </library>
 </component>

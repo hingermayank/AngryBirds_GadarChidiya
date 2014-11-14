@@ -18,14 +18,16 @@ import ab.database.DBoperations;
 import ab.demo.other.ActionRobot;
 import ab.demo.other.Shot;
 import ab.planner.TrajectoryPlanner;
+import ab.utils.ABUtil;
 import ab.utils.StateUtil;
 import ab.vision.ABObject;
+import ab.vision.ABType;
 import ab.vision.GameStateExtractor.GameState;
 import ab.vision.Vision;
 
 public class NaiveAgent implements Runnable {
 
-	private ActionRobot aRobot;
+	public ActionRobot aRobot;
 	private Random randomGenerator;
 	public int currentLevel = 1;
 	public static int time_limit = 12;
@@ -116,7 +118,7 @@ public class NaiveAgent implements Runnable {
 
 	}
 
-	private double distance(Point p1, Point p2) {
+	public double distance(Point p1, Point p2) {
 		return Math
 				.sqrt((double) ((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y)
 						* (p1.y - p2.y)));
@@ -130,6 +132,7 @@ public class NaiveAgent implements Runnable {
 
 		// process image
 		Vision vision = new Vision(screenshot);
+      //  objectType(screenshot);
 
 		// find the slingshot
 		Rectangle sling = vision.findSlingshotMBR();
@@ -301,6 +304,8 @@ public class NaiveAgent implements Runnable {
 		}
 		return state;
 	}
+
+
 
 	public static void main(String args[]) {
 

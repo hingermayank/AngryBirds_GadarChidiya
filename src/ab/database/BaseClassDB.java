@@ -98,7 +98,7 @@ public class BaseClassDB {
                     "   PWEIGHT REAL,\n" +
                     "   AWEIGHT REAL,\n" +
                     "   DISTANCE REAL,\n" +
-                    " REL_ANGLE REAL,\n" +
+                    " WEAKNESS REAL,\n" +
                     " SCORE INT\n" +
                     ");");
             System.out.println("Table created.");
@@ -109,7 +109,7 @@ public class BaseClassDB {
         }
     }
 
-    public void inset(String type, String feasible, double pweight, double aweight, double distance, double rel_angle, int score) {
+    public void inset(String type, String feasible, double pweight, double aweight, double distance, double weakness, int score) {
         try {
             setPreparedStatement();
 
@@ -119,7 +119,7 @@ public class BaseClassDB {
             prep.setDouble(3, pweight);
             prep.setDouble(4, aweight);
             prep.setDouble(5, distance);
-            prep.setDouble(6, rel_angle);
+            prep.setDouble(6, weakness);
             prep.setInt(7, score);
 
             conn.setAutoCommit(false);
