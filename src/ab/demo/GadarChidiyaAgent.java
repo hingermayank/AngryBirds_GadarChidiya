@@ -4,14 +4,17 @@ import ab.database.DBoperations;
 import ab.demo.other.ActionRobot;
 import ab.demo.other.Shot;
 import ab.planner.TrajectoryPlanner;
+import ab.regression.Datapoints;
 import ab.utils.StateUtil;
 import ab.vision.ABObject;
+import ab.vision.ABType;
 import ab.vision.GameStateExtractor;
 import ab.vision.Vision;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
+import java.util.List;
 
 /**
  * Created by mayank on 23/10/14.
@@ -29,22 +32,21 @@ public class GadarChidiyaAgent {
     private boolean firstrun = true;
     //private boolean firstShot;
     private Point prevTarget;
+    Datapoints dp;
+    int maxScore = 0;
+    double chosenAngle;
+    double a,b,c,d,e,f;
+    Shot shot;
+    ABType bird_onSling;
     // a standalone implementation of the Naive Agent
     public GadarChidiyaAgent() {
 
-        if(firstrun) {
-            try {
-                DBoperations dbop = new DBoperations();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
         aRobot = new ActionRobot();
+        bird_onSling = aRobot.getBirdTypeOnSling();
         tp = new TrajectoryPlanner();
         prevTarget = null;
-        //firstShot = true;
         randomGenerator = new Random();
+        dp = new Datapoints();
         // --- go to the Poached Eggs episode level selection page ---
         ActionRobot.GoFromMainMenuToLevelSelection();
 
@@ -79,14 +81,9 @@ public class GadarChidiyaAgent {
                             + " Score: " + scores.get(key) + " ");
                 }
                 System.out.println("Total Score: " + totalScore);
-                if(currentLevel<=7) {
                     aRobot.loadLevel(++currentLevel);
                     // make a new trajectory planner whenever a new level is entered
                     tp = new TrajectoryPlanner();
-
-                    // first shot on this level, try high shot first
-                    //firstShot = true;
-                }
             } else if (state == GameStateExtractor.GameState.LOST) {
                 System.out.println("Restart");
                 aRobot.restartLevel();
@@ -131,6 +128,18 @@ public class GadarChidiyaAgent {
         // find the slingshot
         Rectangle sling = vision.findSlingshotMBR();
 
+        List<ABObject> objlist = new LinkedList<ABObject>();
+        List<ABObject> temp = new LinkedList<ABObject>();
+
+
+        temp = vision.findPigsRealShape();
+        objlist.addAll(temp);
+        temp.clear();
+        temp = vision.findBlocksRealShape();
+        objlist.addAll(temp);
+
+        Point pt = null;
+
         // confirm the slingshot
         while (sling == null && aRobot.getState() == GameStateExtractor.GameState.PLAYING) {
             System.out
@@ -142,88 +151,128 @@ public class GadarChidiyaAgent {
         }
 
         GameStateExtractor.GameState state = aRobot.getState();
-
+        int dx = 0,dy=0;
         // if there is a sling, then play, otherwise just skip.
         if (sling != null) {
+            for (int i = 0; i < objlist.size(); i++) {
+                ABObject currentObject = objlist.get(i);
+                Point center = currentObject.getCenter();
+                double aWeight = dp.aboveBlocksWeight(currentObject, objlist);
+                double distance = dp.getMinPigDistance(currentObject, vision.findPigsRealShape());
+                double pWeight = dp.getArea(currentObject);
+                double weakness = dp.getWeakness(currentObject, aRobot.getBirdTypeOnSling());
+                Point refPoint = tp.getReferencePoint(sling);
+                Point releasePoint;
+                ArrayList<Double> angles = new ArrayList<Double>();
+                HashMap<Double, Point> map = new HashMap<Double, Point>();
+                ArrayList<Point> pts = tp.estimateLaunchPoint(sling, center);
 
-            /* Here the code will go for taking the shot after finding suitable block from regression equation
-
-
-                    // Get the reference point
-                    Point refPoint = tp.getReferencePoint(sling);
-
-
-                    //Calculate the tapping time according the bird type
+                for (int j = 0; j < pts.size(); j++) {
+                    releasePoint = pts.get(j);
                     if (releasePoint != null) {
                         double releaseAngle = tp.getReleaseAngle(sling,
                                 releasePoint);
-                        System.out.println("Release Point: " + releasePoint);
-                        System.out.println("Release Angle: "
-                                + Math.toDegrees(releaseAngle));
-                        int tapInterval = 0;
-                        switch (aRobot.getBirdTypeOnSling())
-                        {
-
-                            case RedBird:
-                                tapInterval = 0; break;               // start of trajectory
-                            case YellowBird:
-                                tapInterval = 65 + randomGenerator.nextInt(25);break; // 65-90% of the way
-                            case WhiteBird:
-                                tapInterval =  70 + randomGenerator.nextInt(20);break; // 70-90% of the way
-                            case BlackBird:
-                                tapInterval =  70 + randomGenerator.nextInt(20);break; // 70-90% of the way
-                            case BlueBird:
-                                tapInterval =  65 + randomGenerator.nextInt(20);break; // 65-85% of the way
-                            default:
-                                tapInterval =  60;
-                        }
-
-                        int tapTime = tp.getTapTime(sling, releasePoint, _tpt, tapInterval);
-                        dx = (int)releasePoint.getX() - refPoint.x;
-                        dy = (int)releasePoint.getY() - refPoint.y;
-                        shot = new Shot(refPoint.x, refPoint.y, dx, dy, 0, tapTime);
-                    }
-                    else
-                    {
-                        System.err.println("No Release Point Found");
-                        return state;
+                        angles.add(releaseAngle);
+                        map.put(releaseAngle, releasePoint);
                     }
                 }
 
-                // check whether the slingshot is changed. the change of the slingshot indicates a change in the scale.
-                {
-                    ActionRobot.fullyZoomOut();
-                    screenshot = ActionRobot.doScreenShot();
-                    vision = new Vision(screenshot);
-                    Rectangle _sling = vision.findSlingshotMBR();
-                    if(_sling != null)
-                    {
-                        double scale_diff = Math.pow((sling.width - _sling.width),2) +  Math.pow((sling.height - _sling.height),2);
-                        if(scale_diff < 25)
-                        {
-                            if(dx < 0)
-                            {
-                                aRobot.cshoot(shot);
-                                state = aRobot.getState();
-                                if ( state == GameStateExtractor.GameState.PLAYING )
-                                {
-                                    screenshot = ActionRobot.doScreenShot();
-                                    vision = new Vision(screenshot);
-                                    java.util.List<Point> traj = vision.findTrajPoints();
-                                    tp.adjustTrajectory(traj, sling, releasePoint);
-                                    firstShot = false;
-                                }
-                            }
-                        }
-                        else
-                            System.out.println("Scale is changed, can not execute the shot, will re-segement the image");
+                for (int j = 0; j < angles.size(); j++) {
+                    int score = (int) (a * angles.get(j) + b * pWeight + c * aWeight + d * distance + e * weakness + f);
+                    if (score > maxScore) {
+                        maxScore = score;
+                        chosenAngle = angles.get(j);
                     }
-                    else
-                        System.out.println("no sling detected, can not execute the shot, will re-segement the image");
                 }
+                pt = map.get(chosenAngle);
+
+                if (pt != null) {
+                    System.out.println("Release Point: " + pt);
+                    System.out.println("Release Angle: "
+                            + Math.toDegrees(chosenAngle));
+
+                    int tapInterval = 0;
+
+                    Point[] x_cord = new Point[objlist.size()];
+                    for (int j = 0; j < objlist.size(); j++) {
+                        x_cord[j] = objlist.get(j).getCenter();
+                    }
+
+                    Arrays.sort(x_cord, new Comparator<Point>() {
+                        public int compare(Point a, Point b) {
+                            int xComp = Integer.compare(a.x, b.x);
+                            if (xComp == 0)
+                                return Integer.compare(a.y, b.y);
+                            else
+                                return xComp;
+                        }
+                    });
+
+                    Point left_most = x_cord[0];
+
+                    switch (bird_onSling)
+                    //switch (ABType.YellowBird)
+                    {
+
+                        case RedBird:
+                            tapInterval = 0;
+                            break;               // start of trajectory
+                        case YellowBird:
+                            tapInterval = 80 + randomGenerator.nextInt(10);
+                            break; // 80-90% of the way
+                        case WhiteBird:
+                            tapInterval = 80 + randomGenerator.nextInt(10);
+                            break; // 80-90% of the way
+                        case BlackBird:
+                            tapInterval = 75 + randomGenerator.nextInt(15);
+                            break; // 75-90% of the way
+                        case BlueBird:
+                            tapInterval = 65 + randomGenerator.nextInt(15);
+                            break; // 65-80% of the way
+                        default:
+                            tapInterval = 60;
+                    }
+
+                    int tapTime = tp.getTapTime(sling, pt, left_most, tapInterval);
+                    dx = (int) pt.getX() - refPoint.x;
+                    dy = (int) pt.getY() - refPoint.y;
+
+                    shot = new Shot(refPoint.x, refPoint.y, dx, dy, 0, tapTime);
+                } else {
+                    System.err.println("No Release Point Found");
+                    return state;
+                }
+
 
             }
-            */
+            // Here the code will go for taking the shot after finding suitable block from regression equation
+            {
+                ActionRobot.fullyZoomOut();
+                screenshot = ActionRobot.doScreenShot();
+                vision = new Vision(screenshot);
+                Rectangle _sling = vision.findSlingshotMBR();
+                if (_sling != null) {
+                    double scale_diff = Math.pow((sling.width - _sling.width), 2) + Math.pow((sling.height - _sling.height), 2);
+                    if (scale_diff < 25) {
+                        if (dx < 0) {
+                            aRobot.cshoot(shot);
+                            state = aRobot.getState();
+                            if (state == GameStateExtractor.GameState.PLAYING) {
+                                screenshot = ActionRobot.doScreenShot();
+                                vision = new Vision(screenshot);
+                                java.util.List<Point> traj = vision.findTrajPoints();
+                                tp.adjustTrajectory(traj, sling, pt);
+                            }
+                        }
+                    } else
+                        System.out.println("Scale is changed, can not execute the shot, will re-segement the image");
+                } else
+                    System.out.println("no sling detected, can not execute the shot, will re-segement the image");
+            }
+
+            objlist.clear();
+            temp.clear();
+
         }
         return state;
     }

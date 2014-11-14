@@ -30,7 +30,7 @@ public class NaiveAgent implements Runnable {
 
 	public ActionRobot aRobot;
 	private Random randomGenerator;
-	public int currentLevel = 1;
+	public int currentLevel = 21;
 	public static int time_limit = 12;
 	private Map<Integer,Integer> scores = new LinkedHashMap<Integer,Integer>();
 	TrajectoryPlanner tp;
