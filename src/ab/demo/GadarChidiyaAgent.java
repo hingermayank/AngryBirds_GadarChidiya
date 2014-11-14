@@ -15,6 +15,10 @@ import java.util.*;
 
 /**
  * Created by mayank on 23/10/14.
+
+ -5484.01   * ANGLE + -1784.9013 * AWEIGHT + -2275.5276 * DISTANCE + 11390.2581
+
+
  */
 public class GadarChidiyaAgent {
 
