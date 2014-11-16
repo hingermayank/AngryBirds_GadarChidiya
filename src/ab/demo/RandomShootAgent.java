@@ -27,7 +27,7 @@ public class RandomShootAgent implements Runnable {
 
     private ActionRobot aRobot;
     private Random randomGenerator;
-    public int currentLevel = 1;
+    public int currentLevel = 21;
     public static int time_limit = 12;
     private Map<Integer,Integer> scores = new LinkedHashMap<Integer,Integer>();
     TrajectoryPlanner tp;
@@ -46,11 +46,12 @@ public class RandomShootAgent implements Runnable {
     private DBoperations dbop;
     private Point _tpt;
     int counter;
-
+    ABType bird_onSling;
     // a standalone implementation of the Naive Agent
     public RandomShootAgent() {
 
         aRobot = new ActionRobot();
+        bird_onSling = aRobot.getBirdTypeOnSling();
         tp = new TrajectoryPlanner();
         prevTarget = null;
         randomGenerator = new Random();
@@ -195,7 +196,8 @@ public class RandomShootAgent implements Runnable {
         GameStateExtractor.GameState state = aRobot.getState();
 
         // if there is a sling, then play, otherwise just skip.
-        if (sling != null) {
+        if (sling != null)
+        {
 
             if (!objlist.isEmpty()) {
 
@@ -264,13 +266,14 @@ public class RandomShootAgent implements Runnable {
 
                         Point left_most = x_cord[0];
 
-                        switch (aRobot.getBirdTypeOnSling())
+                        switch (bird_onSling)
+                        //switch (ABType.YellowBird)
                         {
 
                             case RedBird:
                                 tapInterval = 0; break;               // start of trajectory
                             case YellowBird:
-                                tapInterval = 75 + randomGenerator.nextInt(15);break; // 75-90% of the way
+                                tapInterval = 80 + randomGenerator.nextInt(10);break; // 80-90% of the way
                             case WhiteBird:
                                 tapInterval =  80 + randomGenerator.nextInt(10);break; // 80-90% of the way
                             case BlackBird:
@@ -335,7 +338,7 @@ public class RandomShootAgent implements Runnable {
                                 para.setDistance(minpigdist);
                                 System.out.println("Min. pig distance = " + minpigdist);
 
-                                ABType bird_onSling = aRobot.getBirdTypeOnSling();
+
                                 System.out.println("Bird on sling = " + bird_onSling.toString());
 
                                 double objweakness = dp.getWeakness(randobj, bird_onSling);
