@@ -254,7 +254,6 @@ public class GadarChidiyaAgent implements Runnable {
                             //  BlockObjectData objBlock = new BlockObjectData();
                             int maxScore = Integer.MIN_VALUE;
                             Point center = currentObject.getCenter();
-                            System.out.println("CounteRRRRRRRRRRRRRRRRRRRRRRRR: " + i);
                             double aWeight = dp.aboveBlocksWeight(currentObject, objlist);
                             double distance = dp.getMinPigDistance(currentObject, pigs);
                             double pWeight = dp.getArea(currentObject);
@@ -267,7 +266,6 @@ public class GadarChidiyaAgent implements Runnable {
 
                             for (int j = 0; j < pts.size(); j++) {
                                 releasePoint = pts.get(j);
-                                System.out.println("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj: " + j);
                                 System.out.println("Initial Release Point: " + releasePoint);
                                 if (releasePoint != null) {
                                     double releaseAngle = tp.getReleaseAngle(sling,
@@ -311,8 +309,6 @@ public class GadarChidiyaAgent implements Runnable {
 
                             System.out.println("Selected Release Point: " + pt);
                             System.out.println("Block Type : " + currentObject.getType());
-                            if (currentObject.getType() == ABType.Stone)
-                                System.out.println("Stoneeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee : " + currentObject.shape);
 
 
                             // objBlock.setMaxScore(maxScore);
@@ -325,10 +321,6 @@ public class GadarChidiyaAgent implements Runnable {
 
                             }
 
-
-
-
-                            System.out.println("Max SCOREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE : " + maxScore);
                         }
                     }
 
