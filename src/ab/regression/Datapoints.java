@@ -35,7 +35,7 @@ public class Datapoints {
     }
 
     public double getArea(ABObject block) {
-        int constant = 0;
+        double constant = 0;
         switch (block.getType()) {
             case Pig:
                 constant = 10;
@@ -43,10 +43,20 @@ public class Datapoints {
             case TNT:
                 constant = 10;
                 break;
+            case Stone:
+                constant = 0.1;
+                break;
+            case Wood:
+                constant = 1;
+                break;
+            case Ice:
+                constant = 3;
+                break;
+
             default:
                 constant = 1;
         }
-        return constant * (block.getHeight() * block.getWidth());
+        return (constant * (block.getHeight() * block.getWidth()));
     }
 
     public double getMinPigDistance(ABObject block, List<ABObject> pigs) {
@@ -77,7 +87,7 @@ public class Datapoints {
         }
 
 
-        return totalArea + above( block, blocks);
+        return (totalArea + above( block, blocks));
     }
 
     public double above(ABObject block , List<ABObject> blocks) {
@@ -105,42 +115,46 @@ public class Datapoints {
     }
 
     public double getWeakness(ABObject block, ABType bird) {
-        HashMap<ABType, Double> wood = new HashMap<ABType, Double>();
-        HashMap<ABType, Double> ice = new HashMap<ABType, Double>();
-        HashMap<ABType, Double> stone = new HashMap<ABType, Double>();
+        if (bird.toString().toLowerCase().equals("unknown") || block.toString().toLowerCase().equals("unknown")) {
+            return 0;
+        } else {
 
-        wood.put(ABType.RedBird, 0.8);
-        wood.put(ABType.BlueBird, 0.8);
-        wood.put(ABType.YellowBird, 0.4);
-        wood.put(ABType.WhiteBird, 0.8);
-        wood.put(ABType.BlackBird, 0.4);
+            HashMap<ABType, Double> wood = new HashMap<ABType, Double>();
+            HashMap<ABType, Double> ice = new HashMap<ABType, Double>();
+            HashMap<ABType, Double> stone = new HashMap<ABType, Double>();
 
-        ice.put(ABType.RedBird, 0.8);
-        ice.put(ABType.BlueBird, 0.4);
-        ice.put(ABType.YellowBird, 0.8);
-        ice.put(ABType.WhiteBird, 0.8);
-        ice.put(ABType.BlackBird, 0.4);
+            wood.put(ABType.RedBird, 0.8);
+            wood.put(ABType.BlueBird, 0.8);
+            wood.put(ABType.YellowBird, 0.4);
+            wood.put(ABType.WhiteBird, 0.8);
+            wood.put(ABType.BlackBird, 0.4);
 
-        stone.put(ABType.RedBird, 0.2);
-        stone.put(ABType.BlueBird, 0.1);
-        stone.put(ABType.YellowBird, 0.1);
-        stone.put(ABType.WhiteBird, 0.8);
-        stone.put(ABType.BlackBird, 0.8);
+            ice.put(ABType.RedBird, 0.8);
+            ice.put(ABType.BlueBird, 0.4);
+            ice.put(ABType.YellowBird, 0.8);
+            ice.put(ABType.WhiteBird, 0.8);
+            ice.put(ABType.BlackBird, 0.4);
 
-        String blocktype = block.getType().toString().toLowerCase();
-        //System.out.println("Blocktype = " + blocktype);
-        if (blocktype.equals("wood")) {
-            return wood.get(bird);
-        } else if (blocktype.equals("ice")) {
-            return ice.get(bird);
-        } else if (blocktype.equals("stone")) {
-            return stone.get(bird);
-        } else if(blocktype.equals("pig")) {
-            return 1.0;
+            stone.put(ABType.RedBird, 0.2);
+            stone.put(ABType.BlueBird, 0.1);
+            stone.put(ABType.YellowBird, 0.1);
+            stone.put(ABType.WhiteBird, 0.8);
+            stone.put(ABType.BlackBird, 0.8);
+
+            String blocktype = block.getType().toString().toLowerCase();
+            //System.out.println("Blocktype = " + blocktype);
+            if (blocktype.equals("wood")) {
+                return wood.get(bird);
+            } else if (blocktype.equals("ice")) {
+                return ice.get(bird);
+            } else if (blocktype.equals("stone")) {
+                return stone.get(bird);
+            } else if (blocktype.equals("pig")) {
+                return 1.0;
+            } else {
+                return 0.0;
+            }
+
         }
-        else {
-            return 0.0;
-        }
-
     }
 }
