@@ -339,23 +339,7 @@ public class NaiveAgent implements Runnable {
     }
 }
 
-//Sorts the y-Coordinates of the pigs
-class sort_coordinates implements Comparator<ABObject> {
 
-
-    public int compare(ABObject ab1, ABObject ab2) {
-
-        double y1 = ab1.getCenter().getY();
-        double y2 = ab2.getCenter().getY();
-
-        if (y1 >= y2)
-        {
-            return +1;
-        }else{
-            return -1;
-        }
-    }
-}
 
 
 
