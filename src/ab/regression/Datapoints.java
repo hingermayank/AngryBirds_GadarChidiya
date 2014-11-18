@@ -77,7 +77,7 @@ public class Datapoints {
         }
 
 
-        return totalArea + above( block, blocks);
+        return (totalArea + above( block, blocks));
     }
 
     public double above(ABObject block , List<ABObject> blocks) {
@@ -129,18 +129,22 @@ public class Datapoints {
 
         String blocktype = block.getType().toString().toLowerCase();
         //System.out.println("Blocktype = " + blocktype);
-        if (blocktype.equals("wood")) {
-            return wood.get(bird);
-        } else if (blocktype.equals("ice")) {
-            return ice.get(bird);
-        } else if (blocktype.equals("stone")) {
-            return stone.get(bird);
-        } else if(blocktype.equals("pig")) {
-            return 1.0;
+        if (bird != null || bird.toString().toLowerCase().equals("unknown")) {
+            if (blocktype.equals("wood")) {
+                return wood.get(bird);
+            } else if (blocktype.equals("ice")) {
+                return ice.get(bird);
+            } else if (blocktype.equals("stone")) {
+                return stone.get(bird);
+            } else if (blocktype.equals("pig")) {
+                return 1.0;
+            } else {
+                return 0.0;
+            }
         }
-        else {
+        else
+        {
             return 0.0;
         }
-
     }
 }

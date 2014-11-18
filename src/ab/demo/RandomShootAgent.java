@@ -27,7 +27,7 @@ public class RandomShootAgent implements Runnable {
 
     private ActionRobot aRobot;
     private Random randomGenerator;
-    public int currentLevel = 21;
+    public int currentLevel = 2;
     public static int time_limit = 12;
     private Map<Integer,Integer> scores = new LinkedHashMap<Integer,Integer>();
     TrajectoryPlanner tp;
@@ -52,7 +52,6 @@ public class RandomShootAgent implements Runnable {
     public RandomShootAgent() {
 
         aRobot = new ActionRobot();
-        bird_onSling = aRobot.getBirdTypeOnSling();
         tp = new TrajectoryPlanner();
         prevTarget = null;
         randomGenerator = new Random();
