@@ -35,7 +35,7 @@ public class Datapoints {
     }
 
     public double getArea(ABObject block) {
-        int constant = 0;
+        double constant = 0;
         switch (block.getType()) {
             case Pig:
                 constant = 10;
@@ -43,10 +43,20 @@ public class Datapoints {
             case TNT:
                 constant = 10;
                 break;
+            case Stone:
+                constant = 0.1;
+                break;
+            case Wood:
+                constant = 1;
+                break;
+            case Ice:
+                constant = 3;
+                break;
+
             default:
                 constant = 1;
         }
-        return constant * (block.getHeight() * block.getWidth());
+        return (constant * (block.getHeight() * block.getWidth()));
     }
 
     public double getMinPigDistance(ABObject block, List<ABObject> pigs) {
@@ -129,7 +139,8 @@ public class Datapoints {
 
         String blocktype = block.getType().toString().toLowerCase();
         //System.out.println("Blocktype = " + blocktype);
-        if (bird != null || bird.toString().toLowerCase().equals("unknown")) {
+        if (bird != null || !bird.toString().toLowerCase().equals("unknown")) {
+
             if (blocktype.equals("wood")) {
                 return wood.get(bird);
             } else if (blocktype.equals("ice")) {
